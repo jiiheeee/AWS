@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import pymysql
 
 app = Flask(__name__)
@@ -9,15 +9,58 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '1234'
 app.config['MYSQL_DB'] = 'DB_TEST'
 
-@app.route('/')
-def order():
-    return render_template('submit_menu.html')
+# Create MySQL connection
+mysql = pymysql.connect(
+    host=app.config['MYSQL_HOST'],
+    user=app.config['MYSQL_USER'],
+    password=app.config['MYSQL_PASSWORD'],
+    db=app.config['MYSQL_DB'],
+    autocommit=True
+)
 
-@app.route('/submit_menu', methods=['POST'])
+# Create MySQL cursor
+cursor = mysql.cursor()
+
+    #! 1. `menu`와 `q`를 받아서 INSERT 쿼리문을 작성한다.
+    #! 2. where문으로 menus_v2의 name이 변수 `menu`에 담긴것과 같은것들의 quantity를 변수 `q`만큼 감소시키는 UPDATE 쿼리문을 작성한다
+    #! 3. routing을 하나 더 만들어서 메뉴판을 보여주는 routing을 보여준다 
+
+@app.route('/')
+def first_page():
+    return render_template('first_page.html')
+
+@app.route('/order', methods = ['POST'])
+def order():
+    return render_template('order.html')
+
+@app.route('/add_menu', methods = ['POST'])
+def add_menu():
+    cursor.execute("SELECT * FROM menus_v2")
+    data = cursor.fetchall()
+    return render_template('add_menu.html', data = data)
+
+@app.route('/submit_menu', methods = ['POST'])
 def submit_menu():
     number = request.form['number']
-    name = request.form['name']
+    menu = request.form['menu']
     price = request.form['price']
+    quantity = request.form['quantity']
+
+    mysql = pymysql.connect(
+        host=app.config['MYSQL_HOST'],
+        user=app.config['MYSQL_USER'],
+        passwd=app.config['MYSQL_PASSWORD'],
+        db=app.config['MYSQL_DB'],
+        autocommit=True
+    )
+    cursor = mysql.cursor()
+    cursor.execute(f"insert into menus_v2 (number, name, price, quantity) values ({number}, '{menu}', {price}, {quantity});")
+    mysql.commit()
+    return redirect('/result')
+
+@app.route('/order/jihee', methods = ['POST'])
+def order_jihee():
+    menu = request.form['menu']
     quantity = request.form['quantity']
 
     # Create MySQL connection
@@ -31,39 +74,32 @@ def submit_menu():
 
     # Create MySQL cursor
     cursor = mysql.cursor()
+    cursor.execute(f"SELECT * FROM menus_v2 where name='{menu}';")
 
-    # Execute insert query
-    query = "INSERT INTO menus_v2 (number, name, price, quantity) VALUES (%s, %s, %s, %s)"
-    cursor.execute(query, (number, name, price, quantity))
+    res = cursor.fetchall()
+    after_quantity = int(res[0][3]) - int(quantity)
 
-    # Close cursor and MySQL connection
-    cursor.close()
-    mysql.close()
+    if int(quantity) < 0:
+        error_message_1 = '수량은 1개 이상 주문해주세요.'
+        return error_message_1
+    
+    elif int(after_quantity) >= 0:
+        cursor.execute(f"UPDATE menus_v2 SET quantity = {after_quantity} WHERE name = '{menu}';")
+        mysql.commit()
+        return redirect('/result')
 
-    return f"연번: {number}, 메뉴: {name}, 가격: {price}, 수량: {quantity} 주문이 완료되었습니다."
+    else:
+        cursor.execute(f"select quantity from menus_v2 where name = '{menu}';")
+        residual_quantity = cursor.fetchall()
+        quantity_data = int(residual_quantity[0][0])
+        error_message_2 = f'주문하신 메뉴의 수량이 부족합니다. (잔여 수량: {quantity_data})'
+        return error_message_2
 
 @app.route('/result')
 def result():
-    # Create MySQL connection
-    mysql = pymysql.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        password=app.config['MYSQL_PASSWORD'],
-        db=app.config['MYSQL_DB'],
-        autocommit=True
-    )
-
-    # Create MySQL cursor
-    cursor = mysql.cursor()
-
     cursor.execute("SELECT * FROM menus_v2")
     data = cursor.fetchall()
-
-    # Close cursor and MySQL connection
-    cursor.close()
-    mysql.close()
-
     return render_template('index.html', data=data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8800)
+    app.run(host='0.0.0.0', port=3000)
