@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect
 import pymysql
-import cryptography
 
 app = Flask(__name__)
 
@@ -27,8 +26,37 @@ cursor = mysql.cursor()
     #! 3. routing을 하나 더 만들어서 메뉴판을 보여주는 routing을 보여준다 
 
 @app.route('/')
+def first_page():
+    return render_template('first_page.html')
+
+@app.route('/order', methods = ['POST'])
 def order():
     return render_template('order.html')
+
+@app.route('/add_menu', methods = ['POST'])
+def add_menu():
+    cursor.execute("SELECT * FROM menus_v2")
+    data = cursor.fetchall()
+    return render_template('add_menu.html', data = data)
+
+@app.route('/submit_menu', methods = ['POST'])
+def submit_menu():
+    number = request.form['number']
+    menu = request.form['menu']
+    price = request.form['price']
+    quantity = request.form['quantity']
+
+    mysql = pymysql.connect(
+        host=app.config['MYSQL_HOST'],
+        user=app.config['MYSQL_USER'],
+        passwd=app.config['MYSQL_PASSWORD'],
+        db=app.config['MYSQL_DB'],
+        autocommit=True
+    )
+    cursor = mysql.cursor()
+    cursor.execute(f"insert into menus_v2 (number, name, price, quantity) values ({number}, '{menu}', {price}, {quantity});")
+    mysql.commit()
+    return redirect('/result')
 
 @app.route('/order/jihee', methods = ['POST'])
 def order_jihee():
