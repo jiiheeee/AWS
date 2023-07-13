@@ -21,17 +21,15 @@ mysql = pymysql.connect(
 # Create MySQL cursor
 cursor = mysql.cursor()
 
-    #! 1. `menu`와 `q`를 받아서 INSERT 쿼리문을 작성한다.
-    #! 2. where문으로 menus_v2의 name이 변수 `menu`에 담긴것과 같은것들의 quantity를 변수 `q`만큼 감소시키는 UPDATE 쿼리문을 작성한다
-    #! 3. routing을 하나 더 만들어서 메뉴판을 보여주는 routing을 보여준다 
-
 @app.route('/')
 def first_page():
     return render_template('first_page.html')
 
-@app.route('/order', methods = ['POST'])
+@app.route('/order', methods=['POST'])
 def order():
-    return render_template('order.html')
+    cursor.execute("SELECT * FROM menus_v2")
+    data = cursor.fetchall()
+    return render_template('order.html', data=data)
 
 @app.route('/add_menu', methods = ['POST'])
 def add_menu():
@@ -39,59 +37,50 @@ def add_menu():
     data = cursor.fetchall()
     return render_template('add_menu.html', data = data)
 
-@app.route('/submit_menu', methods = ['POST'])
+@app.route('/submit_menu', methods=['POST'])
 def submit_menu():
-    number = request.form['number']
-    menu = request.form['menu']
-    price = request.form['price']
-    quantity = request.form['quantity']
+    try:
+        number = int(request.form['number'])
+        menu = str(request.form['menu'])
+        price = int(request.form['price'])
+        quantity = int(request.form['quantity'])
+    except ValueError:
+        return '잘못된 입력입니다. 메뉴는 문자, 수량은 숫자로 입력해주세요.'
 
-    mysql = pymysql.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        passwd=app.config['MYSQL_PASSWORD'],
-        db=app.config['MYSQL_DB'],
-        autocommit=True
-    )
-    cursor = mysql.cursor()
-    cursor.execute(f"insert into menus_v2 (number, name, price, quantity) values ({number}, '{menu}', {price}, {quantity});")
+    cursor.execute(f"INSERT INTO menus_v2 (number, name, price, quantity) VALUES ({number}, '{menu}', {price}, {quantity});")
     mysql.commit()
     return redirect('/result')
 
-@app.route('/order/jihee', methods = ['POST'])
+@app.route('/order/jihee', methods=['POST'])
 def order_jihee():
-    menu = request.form['menu']
-    quantity = request.form['quantity']
+    menu = str(request.form['menu'])
+    try:
+        quantity = int(request.form['quantity'])
+    except ValueError:
+        return '잘못된 입력입니다. 메뉴는 문자, 수량은 숫자로 입력해주세요.'
 
-    # Create MySQL connection
-    mysql = pymysql.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        password=app.config['MYSQL_PASSWORD'],
-        db=app.config['MYSQL_DB'],
-        autocommit=True
-    )
+    if menu.isnumeric():
+        return '잘못된 입력입니다. 메뉴는 문자, 수량은 숫자로 입력해주세요.'
 
-    # Create MySQL cursor
-    cursor = mysql.cursor()
-    cursor.execute(f"SELECT * FROM menus_v2 where name='{menu}';")
-
+    cursor.execute(f"SELECT * FROM menus_v2 WHERE name='{menu}';")
     res = cursor.fetchall()
-    after_quantity = int(res[0][3]) - int(quantity)
 
-    if int(quantity) < 0:
+    if len(res) == 0:
+        return '주문하신 메뉴는 없는 메뉴입니다.'
+
+    after_quantity = res[0][3] - quantity
+
+    if quantity <= 0:
         error_message_1 = '수량은 1개 이상 주문해주세요.'
         return error_message_1
-    
-    elif int(after_quantity) >= 0:
+    elif after_quantity >= 0:
         cursor.execute(f"UPDATE menus_v2 SET quantity = {after_quantity} WHERE name = '{menu}';")
         mysql.commit()
         return redirect('/result')
-
     else:
-        cursor.execute(f"select quantity from menus_v2 where name = '{menu}';")
+        cursor.execute(f"SELECT quantity FROM menus_v2 WHERE name = '{menu}';")
         residual_quantity = cursor.fetchall()
-        quantity_data = int(residual_quantity[0][0])
+        quantity_data = residual_quantity[0][0]
         error_message_2 = f'주문하신 메뉴의 수량이 부족합니다. (잔여 수량: {quantity_data})'
         return error_message_2
 
