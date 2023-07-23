@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Board Posting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .board-container {
+            width: 60%;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f2f2f2;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .form-container {
+            width: 80%;
+        }
+        .form-container label, .form-container input, .form-container textarea {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .form-container input[type="text"], .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-container input[type="submit"] {
+            font-size: 18px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .form-container input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="board-container">
+        <div class="form-container">
+            <h1>Board Posting</h1>
+            <form action="/result" method="POST">
+                <label for="id">작성자:</label>
+                <input type="text" id="id" name="id" required>
+                <label for="title">제목:</label>
+                <input type="text" id="title" name="title" required>
+                <label for="content">내용:</label>
+                <textarea id="content" name="content" rows="8" required></textarea>
+                <input type="submit" value="작성하기">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

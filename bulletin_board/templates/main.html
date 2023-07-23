@@ -1,0 +1,56 @@
+<!-- first_page.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>게시판</title>
+</head>
+<body>
+    <h1>게시판</h<!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    background-color: #f9f9f9;
+                    margin: 0;
+                    padding: 0;
+                }
+                h1 {
+                    color: #007BFF;
+                    margin-top: 40px;
+                }
+                .btn-container {
+                    margin-top: 20px;
+                }
+                .btn-container form {
+                    display: inline;
+                }
+                .btn-container input[type="submit"] {
+                    font-size: 18px;
+                    background-color: #007BFF;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    margin: 5px;
+                }
+                .btn-container input[type="submit"]:hover {
+                    background-color: #0056b3;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="btn-container">
+                <form action="/board_list" method="POST">
+                    <input type="submit" value="List">
+                </form>
+                <form action="/board_posting" method="POST">
+                    <input type="submit" value="Posting">
+                </form>
+            </div>
+        </body>
+        </html>
+</body>
+</html>
