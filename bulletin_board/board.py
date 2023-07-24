@@ -48,15 +48,15 @@ def result():
     return render_template('board_list.html', data=data)
 
 # 파란 링크 누르면 이동
-@app.route('/board_list/<title>')
-def show_post(title):
-    cursor.execute(f"SELECT * FROM board WHERE title = '{title}'")
+@app.route('/board_list/<number>')
+def show_post(number):
+    cursor.execute(f"SELECT * FROM board WHERE number = '{number}'")
     post = cursor.fetchone()
+
+
+    return render_template('board_detail.html', post=post)
     
-    if post:
-        return render_template('board_detail.html', post=post)
-    else:
-        return "게시물을 찾을 수 없습니다."
+
 
 
 if __name__ == '__main__':
