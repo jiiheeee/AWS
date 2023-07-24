@@ -54,7 +54,7 @@ def show_post(title):
     post = cursor.fetchone()
     
     if post:
-        return render_template('post.html', post=post)
+        return render_template('board_detail.html', post=post)
     else:
         return "게시물을 찾을 수 없습니다."
 
