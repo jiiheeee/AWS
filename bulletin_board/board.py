@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 import pymysql
 
 app = Flask(__name__)
@@ -50,13 +50,13 @@ def result():
 # 파란 링크 누르면 이동
 @app.route('/board_list/<number>')
 def show_post(number):
+    update_query = f"UPDATE board SET views = views + 1 WHERE number = {number}"
+    cursor.execute(update_query)
+
     cursor.execute(f"SELECT * FROM board WHERE number = '{number}'")
     post = cursor.fetchone()
-
-
-    return render_template('board_detail.html', post=post)
     
-
+    return render_template('board_detail.html', post=post)
 
 
 if __name__ == '__main__':

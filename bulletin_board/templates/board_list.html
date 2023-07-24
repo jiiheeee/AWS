@@ -33,11 +33,13 @@
         <tr>
             <th>id</th>
             <th>title</th>
+            <th>조회수</th>
         </tr>
         {% for row in data %}
         <tr>
             <td>{{ row[0] }}</td>
             <td><a class="title-link" href="/board_list/{{ row[3] }}">{{ row[1] }}</a></td>
+            <td>{{ row[4] }}</td>
         </tr>
         {% endfor %}
     </table>
