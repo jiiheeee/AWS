@@ -11,6 +11,14 @@
             margin: 0 auto;
         }
 
+        .post-box {
+            border: 1px solid #ccc; /* 테두리 스타일 설정 */
+            border-radius: 4px; /* 테두리 둥글게 설정 */
+            padding: 15px; /* 네모 박스 내부 여백 설정 */
+            margin-bottom: 20px; /* 네모 박스 아래 여백 설정 */
+            margin-top: 80px; /* 네모 박스 위쪽 여백 설정 */
+        }
+
         h1 {
             color: #007bff;
         }
@@ -23,10 +31,36 @@
             font-size: 14px;
             color: #888;
         }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .btn-delete {
+            background-color: #888; /* 회색으로 변경 */
+            color: #fff;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>{{ post[1] }} <span class="views">({{ post[4] }} views)</span></h1>
-    <p>{{ post[2] }}</p>
+    <div class="post-box"> <!-- 게시글 내용을 네모 박스로 감싸기 -->
+        <h1>{{ post[1] }} <span class="views">({{ post[4] }} views)</span></h1>
+        <p>{{ post[2] }}</p>
+        <div>
+            <a href="/board_list/{{ post[3] }}/delete" class="btn btn-delete">삭제하기</a>
+        </div>
+    </div>
 </body>
 </html>

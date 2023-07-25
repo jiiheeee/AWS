@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import pymysql
 
 app = Flask(__name__)
@@ -58,6 +58,10 @@ def show_post(number):
     
     return render_template('board_detail.html', post=post)
 
+@app.route('/board_list/<number>/delete')
+def board_edit(number):
+    cursor.execute(f"delete from board where number={number};")
+    return render_template('board_delete.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)
