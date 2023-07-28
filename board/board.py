@@ -58,6 +58,7 @@ def show_post(number):
     
     return render_template('board_detail.html', post=post)
 
+#게시글 삭제하기
 @app.route('/board_list/<number>/delete')
 def board_edit(number):
     cursor.execute(f"delete from board where number={number};")
